@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WorldCast: Distributed Multiplayer World Models</title>
+<meta name="description" content="WorldCast is a distributed multiplayer world model: each player runs its own client, and clients exchange only player state and scene state.">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="WorldCast: Distributed Multiplayer World Models">
+<meta property="og:description" content="Each client generates one player's view. Clients exchange only player state and scene state.">
+<meta property="og:url" content="https://ziyang-ye.github.io/WorldCast-Page/">
+<meta property="og:image" content="https://ziyang-ye.github.io/WorldCast-Page/assets/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="WorldCast: Distributed Multiplayer World Models">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WorldCast: Distributed Multiplayer World Models">
+<meta name="twitter:description" content="Each client generates one player's view. Clients exchange only player state and scene state.">
+<meta name="twitter:image" content="https://ziyang-ye.github.io/WorldCast-Page/assets/og.jpg">
+<link rel="icon" href="assets/favicon.svg?v=0930" type="image/svg+xml">
+<link rel="icon" href="assets/favicon-32.png?v=0930" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=0930">
+<link rel="preload" href="assets/fonts/inter-tight-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/inter-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/media/wall/cover.webp" as="image" type="image/webp" fetchpriority="high">
+<link rel="stylesheet" href="assets/css/style.css?v=1002">
+<link rel="stylesheet" href="assets/css/fig3case.css?v=1002">
+<script>
+  (function (r) {
+    r.className = r.className.replace('no-js', 'js');
+    var still = /[?&]motion=off\b/.test(location.search) || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    r.classList.add(still ? 'still' : 'motion');
+  })(document.documentElement);
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav" id="nav">
+  <div class="nav-bar">
+    <a class="nav-brand" href="#top" aria-label="WorldCast, back to top">WorldCast</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Sections">
+      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <nav class="nav-menu" id="nav-menu" aria-label="Sections">
+      <a href="#views">Views</a>
+      <a href="#multiplayer">Multiplayer</a>
+      <a href="#player-state">Player state</a>
+      <a href="#scene-state">Scene state</a>
+      <a href="#method">Method</a>
+      <a href="#gallery">Gallery</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="pill pill-xs" data-link="paper" href="#bibtex">Paper</a>
+      <a class="pill pill-xs" data-link="code" href="#bibtex">Code</a>
+      <a class="pill pill-xs" data-link="demo" href="#bibtex">Demo</a>
+      <a class="pill pill-xs pill-light" href="#bibtex">BibTeX</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero" id="top" aria-label="WorldCast">
+  <div class="wall" aria-hidden="true">
+    <div class="wall-cover"></div>
+    <canvas class="wall-canvas"></canvas>
+    <div class="wall-shade"></div>
+  </div>
+  <div class="hero-inner">
+    <h1 class="wordmark">WorldCast</h1>
+    <p class="hero-sub">Distributed Multiplayer World Models</p>
+    <ul class="authors" aria-label="Authors">
+      <li><a href="https://ziyang-ye.github.io/" target="_blank" rel="noopener">Ziyang Ye</a><sup>1</sup></li>
+      <li><a href="https://junchao-cs.github.io/" target="_blank" rel="noopener">Junchao Huang</a><sup>1,2</sup></li>
+      <li>Evelyn Zhang<sup>2</sup></li>
+      <li>Zhihao Xie<sup>1</sup></li>
+      <li>Ruicheng Zhang<sup>3</sup></li>
+      <li>Boyao Han<sup>1</sup></li>
+      <li>Litao Ban<sup>4</sup></li>
+      <li>Ziye Wang<sup>4</sup></li>
+      <li><a href="https://joyhuyy1412.github.io/" target="_blank" rel="noopener">Xinting Hu</a><sup>5</sup></li>
+      <li><a href="https://shishaoshuai.com/" target="_blank" rel="noopener">Shaoshuai Shi</a><sup>4</sup></li>
+      <li><a href="https://zhuotaotian.github.io/" target="_blank" rel="noopener">Zhuotao Tian</a><sup>2</sup></li>
+      <li><a href="https://llijiang.github.io/" target="_blank" rel="noopener">Li Jiang</a><sup>1,2&dagger;</sup></li>
+    </ul>
+    <ul class="affils" aria-label="Affiliations">
+      <li><sup>1</sup>CUHK-Shenzhen</li>
+      <li><sup>2</sup>SLAI</li>
+      <li><sup>3</sup>Tsinghua SIGS</li>
+      <li><sup>4</sup>Voyager Research, Didi Chuxing</li>
+      <li><sup>5</sup>USTC</li>
+      <li><sup>&dagger;</sup>Corresponding author</li>
+    </ul>
+    <div class="hero-cta">
+      <a class="pill" data-link="paper" href="#bibtex">
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.5h6.5L15.5 6.5V17a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V3a.5.5 0 0 1 .5-.5z M11.5 2.5V6.5h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        <span>Paper</span>
+      </a>
+      <a class="pill" data-link="code" href="#bibtex">
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5.5L2.5 10 7 14.5M13 5.5l4.5 4.5-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Code</span>
+      </a>
+      <a class="pill" data-link="demo" href="#bibtex">
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4" width="15" height="10" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7 17h6M10 14v3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <span>Demo</span>
+      </a>
+      <a class="pill" id="video-link" href="#gallery">
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M6.5 4.5v11l9-5.5z" fill="currentColor"/></svg>
+        <span>Videos</span>
+      </a>
+      <a class="pill pill-light" href="#bibtex">
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 5.5h12M4 10h12M4 14.5h7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <span>BibTeX</span>
+      </a>
+    </div>
+  </div>
+  <p class="hero-note">Every tile is a view generated by WorldCast.</p>
+</section>
+
+<section class="section" id="views">
+  <div class="wrap">
+    <header class="section-head">
+      <h2 class="headline reveal">Independent controls. One shared world.</h2>
+    </header>
+  </div>
+  <div class="wrap wrap-mp">
+    <div class="teaser reveal">
+      <div class="vgroup quad" data-group="teaser">
+        <figure class="view" data-accent="a" data-role="A">
+          <div class="frame"><video muted loop playsinline preload="none" controls poster="assets/media/views/A.webp" width="672" height="384" aria-label="Player A, generated view"><source src="assets/media/views/A.mp4" type="video/mp4"><source src="assets/media/views/A.webm" type="video/webm"></video><span class="chip" aria-hidden="true"><span class="dot"></span>A</span></div>
+          <div class="console js-only" data-console="A" aria-hidden="true"></div>
+        </figure>
+        <figure class="view" data-accent="b" data-role="B">
+          <div class="frame"><video muted loop playsinline preload="none" controls poster="assets/media/views/B.webp" width="672" height="384" aria-label="Player B, generated view"><source src="assets/media/views/B.mp4" type="video/mp4"><source src="assets/media/views/B.webm" type="video/webm"></video><span class="chip" aria-hidden="true"><span class="dot"></span>B</span></div>
+          <div class="console js-only" data-console="B" aria-hidden="true"></div>
+        </figure>
+        <figure class="view" data-accent="c" data-role="C">
+          <div class="frame"><video muted loop playsinline preload="none" controls poster="assets/media/views/C.webp" width="672" height="384" aria-label="Player C, generated view"><source src="assets/media/views/C.mp4" type="video/mp4"><source src="assets/media/views/C.webm" type="video/webm"></video><span class="chip" aria-hidden="true"><span class="dot"></span>C</span></div>
+          <div class="console js-only" data-console="C" aria-hidden="true"></div>
+        </figure>
+        <figure class="view view-map js-only" data-minimap="teaser">
+          <div class="frame frame-map"><svg class="mm-svg" viewBox="536 402 1000 952" role="img" aria-label="Top-down map of Ancient with the positions and fields of view of players A, B and C"></svg><span class="chip" aria-hidden="true">Map</span><div class="group-bar" data-for="teaser"></div></div>
+        </figure>
+      </div>
+    </div>
+    <p class="caption">Ancient, held-out round, given player positions. Each view is generated from its own player&rsquo;s controls.</p>
+  </div>
+</section>
+
+<section class="section" id="multiplayer">
+  <div class="wrap">
+    <header class="section-head">
+      <p class="eyebrow">Multiplayer</p>
+      <h2 class="headline reveal">Real-time, <span class="nw">long-horizon</span> multiplayer.</h2>
+    </header>
+  </div>
+  <div class="wrap wrap-mp">
+    <div class="reveal">
+      <div class="vgroup mpgrid js-only" data-group="mp" data-cols="5" data-atlas="assets/media/multiplayer/row1 assets/media/multiplayer/row2" data-atlas-small="assets/media/multiplayer/small">
+        <figure class="view"><div class="frame"><img class="tile-poster" src="assets/media/multiplayer/view1.webp" alt="View 1" width="672" height="384" decoding="async" loading="lazy"><span class="num" aria-hidden="true">1</span></div></figure>
+        <figure class="view"><div class="frame"><img class="tile-poster" src="assets/media/multiplayer/view2.webp" alt="View 2" width="672" height="384" decoding="async" loading="lazy"><span class="num" aria-hidden="true">2</span></div></figure>
+        <figure class="view"><div class="frame"><img class="tile-poster" src="assets/media/multiplayer/view3.webp" alt="View 3" width="672" height="384" decoding="async" loading="lazy"><span class="num" aria-hidden="true">3</span></div></figure>
+        <figure class="view"><div class="frame"><img class="tile-poster" src="assets/media/multiplayer/view4.webp" alt="View 4" width="672" height="384" decoding="async" loading="lazy"><span class="num" aria-hidden="true">4</span></div></figure>
+        <figure class="view"><div class="frame"><img class="tile-poster" src="assets/media/multiplayer/view5.webp" alt="View 5" width="672" height="384" decoding="async" loading="lazy"><span class="num" aria-hidden="true">5</span></div></figure>
+        <figure class="view"><div class="frame"><img class="tile-poster" src="assets/media/multiplayer/view6.webp" alt="View 6" width="672" height="384" decoding="async" loading="lazy"><span class="num" aria-hidden="true">6</span></div></figure>
+        <figure class="view"><div class="frame"><img class="tile-poster" src="assets/media/multiplayer/view7.webp" alt="View 7" width="672" height="384" decoding="async" loading="lazy"><span class="num" aria-hidden="true">7</span></div></figure>
+        <figure class="view"><div class="frame"><img class="tile-poster" src="assets/media/multiplayer/view8.webp" alt="View 8" width="672" height="384" decoding="async" loading="lazy"><span class="num" aria-hidden="true">8</span></div></figure>
+        <figure class="view"><div class="frame"><img class="tile-poster" src="assets/media/multiplayer/view9.webp" alt="View 9" width="672" height="384" decoding="async" loading="lazy"><span class="num" aria-hidden="true">9</span></div></figure>
+        <figure class="view"><div class="frame"><img class="tile-poster" src="assets/media/multiplayer/view10.webp" alt="View 10" width="672" height="384" decoding="async" loading="lazy"><span class="num" aria-hidden="true">10</span></div></figure>
+      </div>
+      <div class="group-bar group-bar-clock js-only" data-for="mp" data-clock="round" data-clock-offset="1" data-duration="59.0625"></div>
+      <noscript><div class="mp-rows no-js-only">
+        <video controls muted loop playsinline preload="none" poster="assets/media/multiplayer/row1.webp" width="3360" height="384" aria-label="Views 1 to 5"><source src="assets/media/multiplayer/row1.mp4" type="video/mp4"><source src="assets/media/multiplayer/row1.webm" type="video/webm"></video>
+        <video controls muted loop playsinline preload="none" poster="assets/media/multiplayer/row2.webp" width="3360" height="384" aria-label="Views 6 to 10"><source src="assets/media/multiplayer/row2.mp4" type="video/mp4"><source src="assets/media/multiplayer/row2.webm" type="video/webm"></video>
+      </div></noscript>
+    </div>
+    <p class="caption">Ancient, held-out round, given player positions.</p>
+  </div>
+</section>
+
+<section class="section" id="player-state">
+  <div class="wrap">
+    <header class="section-head">
+      <p class="eyebrow">Player state</p>
+      <h2 class="headline reveal">Each client renders the other players from the shared player state.</h2>
+    </header>
+  </div>
+  <div class="wrap">
+    <div class="ps reveal">
+      <p class="ps-tagline no-js-only">Shared player state</p>
+      <div class="ps-bar js-only">
+        <div class="seg-ctl ps-mode" role="group" aria-label="What each view shows of the other players">
+          <button type="button" data-mode="proj" aria-pressed="true">Projected players</button>
+          <button type="button" data-mode="field" aria-pressed="false">Player state field</button>
+        </div>
+        <div class="depth-key" aria-hidden="true"><span class="dk-k">Predicted depth</span><span class="dk-e">near</span><i class="dk-ramp"></i><span class="dk-e">far</span></div>
+      </div>
+      <div class="vgroup ps-views" data-group="ps">
+        <figure class="view" data-accent="a" data-role="A">
+          <div class="frame"><video muted loop playsinline preload="none" controls poster="assets/media/player-state/A.webp" width="672" height="384" aria-label="Client A, generated view"><source src="assets/media/player-state/A.mp4" type="video/mp4"><source src="assets/media/player-state/A.webm" type="video/webm"></video>
+            <svg class="marks js-only" viewBox="0 0 672 384" aria-hidden="true"></svg>
+            <span class="chip" aria-hidden="true"><span class="dot"></span>A</span>
+            <div class="pip"><video class="pip-v" muted loop playsinline preload="none" poster="assets/media/player-state/depth_A.webp" width="672" height="384" aria-label="Depth predicted from client A's generated view"><source src="assets/media/player-state/depth_A.mp4" type="video/mp4"><source src="assets/media/player-state/depth_A.webm" type="video/webm"></video><span class="pip-k">Predicted depth</span></div>
+          </div>
+        </figure>
+        <figure class="view" data-accent="b" data-role="B">
+          <div class="frame"><video muted loop playsinline preload="none" controls poster="assets/media/player-state/B.webp" width="672" height="384" aria-label="Client B, generated view"><source src="assets/media/player-state/B.mp4" type="video/mp4"><source src="assets/media/player-state/B.webm" type="video/webm"></video>
+            <svg class="marks js-only" viewBox="0 0 672 384" aria-hidden="true"></svg>
+            <span class="chip" aria-hidden="true"><span class="dot"></span>B</span>
+            <div class="pip"><video class="pip-v" muted loop playsinline preload="none" poster="assets/media/player-state/depth_B.webp" width="672" height="384" aria-label="Depth predicted from client B's generated view"><source src="assets/media/player-state/depth_B.mp4" type="video/mp4"><source src="assets/media/player-state/depth_B.webm" type="video/webm"></video><span class="pip-k">Predicted depth</span></div>
+          </div>
+        </figure>
+        <figure class="view" data-accent="c" data-role="C">
+          <div class="frame"><video muted loop playsinline preload="none" controls poster="assets/media/player-state/C.webp" width="672" height="384" aria-label="Client C, generated view"><source src="assets/media/player-state/C.mp4" type="video/mp4"><source src="assets/media/player-state/C.webm" type="video/webm"></video>
+            <svg class="marks js-only" viewBox="0 0 672 384" aria-hidden="true"></svg>
+            <span class="chip" aria-hidden="true"><span class="dot"></span>C</span>
+            <div class="pip"><video class="pip-v" muted loop playsinline preload="none" poster="assets/media/player-state/depth_C.webp" width="672" height="384" aria-label="Depth predicted from client C's generated view"><source src="assets/media/player-state/depth_C.mp4" type="video/mp4"><source src="assets/media/player-state/depth_C.webm" type="video/webm"></video><span class="pip-k">Predicted depth</span></div>
+          </div>
+        </figure>
+      </div>
+      <div class="group-bar js-only" data-for="ps"></div>
+      <div class="ps-lower js-only">
+        <div class="pst" aria-hidden="true">
+          <div class="pst-head">
+            <p class="pst-title">Shared player state</p>
+            <p class="pst-clock"></p>
+          </div>
+          <div class="pst-grid">
+            <div class="pst-row pst-cols"><span>Player</span><span>Position <small>x, y, z (u)</small></span><span>Facing</span><span>Controls</span><span>Weapon</span><span>In view of</span></div>
+          </div>
+        </div>
+        <figure class="ps-map">
+          <div class="frame-map ps-map-frame"><svg class="mm-svg" viewBox="523 98 1396 872" role="img" aria-label="Top-down map of Mirage with clients A, B and C, their fields of view, and which clients have another player in view"></svg><div class="mm-legend" aria-hidden="true"><span><i class="lg-cone"></i>Field of view</span><span><i class="lg-see"></i>In view</span></div></div>
+        </figure>
+      </div>
+    </div>
+    <p class="caption">Mirage, held-out round, given player positions.</p>
+  </div>
+</section>
+
+<section class="section" id="scene-state">
+  <div class="wrap">
+    <header class="section-head">
+      <p class="eyebrow">Scene state</p>
+      <h2 class="headline reveal">Generated once. Reused by others.</h2>
+      <p class="lead reveal">Every generated block joins the shared scene state. Clients that arrive later reuse it, so the world keeps one consistent appearance across all views.</p>
+    </header>
+  </div>
+  <div class="wrap">
+    <div class="sc2 reveal" id="sc2">
+      <div class="sc2-side">
+        <div class="sc2-cases seg-ctl js-only" role="group" aria-label="Case" hidden></div>
+        <div class="sc2-stepset">
+        <ol class="sc2-steps">
+          <li data-step="x"><span class="sc2-when">17.3&nbsp;s</span><p><b class="c-c">Player 1</b> sees this place.</p></li>
+          <li data-step="y0"><span class="sc2-when">24.5&nbsp;s</span><p><b class="c-a">Player 2</b>, before the turn: on and off agree.</p></li>
+          <li data-step="y1"><span class="sc2-when">26.6&nbsp;s</span><p><b class="c-a">Player 2</b> turns. With scene state on, it renders the place Player&nbsp;1 saw; off, a different one.</p></li>
+        </ol>
+        </div>
+        <div class="sc2-time js-only" aria-hidden="true">
+          <div class="sc2-track"><i class="sc2-seg sc2-seg-x"></i><i class="sc2-seg sc2-seg-y"></i><i class="sc2-tick"></i><b class="sc2-head"><span class="sc2-now"></span></b></div>
+          <div class="sc2-ticks"><span class="c-c" data-t="xname">Player 1</span><span class="c-a" data-t="yname">Player 2</span></div>
+        </div>
+        <div class="sc2-ctl js-only">
+          <button class="sc-replay" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10a5.5 5.5 0 1 0 1.8-4.1M4.5 3.5v3h3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Replay</span></button>
+          <div class="seg-ctl sc2-at" role="group" aria-label="Moment shown">
+            <button type="button" data-at="early" aria-pressed="false">25.0 s</button>
+            <button type="button" data-at="key" aria-pressed="true">27.0 s</button>
+          </div>
+        </div>
+      </div>
+      <div class="sc2-grid">
+        <figure class="sc2-x view" data-accent="c">
+          <div class="frame">
+            <img class="sc2-key js-only" src="assets/media/scene-state/mirage/x_on_key.webp" alt="" width="672" height="384" decoding="async" loading="lazy">
+            <video class="sc2-v" controls muted playsinline preload="none" poster="assets/media/scene-state/mirage/x_on_key.webp" width="672" height="384" aria-label="Player 1's generated view, 17.3 to 18.1 s"><source src="assets/media/scene-state/mirage/x_on.mp4" type="video/mp4"><source src="assets/media/scene-state/mirage/x_on.webm" type="video/webm"></video>
+            <span class="chip" aria-hidden="true"><span class="dot"></span><span data-t="xname">Player 1</span><span class="chip-t" data-clock="x">17.3 s</span></span>
+          </div>
+          <figcaption><span class="sc2-lab"><span data-t="xname">Player 1</span> <span class="mute">&middot; earlier, the same place</span></span></figcaption>
+        </figure>
+        <figure class="sc2-p view" data-mode="on">
+          <div class="frame">
+            <img class="sc2-key js-only" src="assets/media/scene-state/mirage/y_on_key.webp" alt="" width="672" height="384" decoding="async" loading="lazy">
+            <img class="sc2-early js-only" src="assets/media/scene-state/mirage/y_on_early.webp" alt="" width="672" height="384" decoding="async" loading="lazy">
+            <video class="sc2-v" controls muted playsinline preload="none" poster="assets/media/scene-state/mirage/y_on_key.webp" width="672" height="384" aria-label="Player 2 with scene state on, 24.5 to 27.0 s"><source src="assets/media/scene-state/mirage/y_on.mp4" type="video/mp4"><source src="assets/media/scene-state/mirage/y_on.webm" type="video/webm"></video>
+            <span class="chip" aria-hidden="true"><span class="dot dot-a"></span>Scene state on<span class="chip-t" data-clock="y">27.0 s</span></span>
+          </div>
+          <figcaption><span class="sc2-lab"><span data-t="yname">Player 2</span> <span class="mute">&middot; scene state on</span></span><span class="verdict ok"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Matches <span data-t="xname">Player 1</span>&rsquo;s view</span></span></figcaption>
+        </figure>
+        <figure class="sc2-p view" data-mode="rec">
+          <div class="frame">
+            <img class="sc2-key js-only" src="assets/media/scene-state/mirage/y_rec_key.webp" alt="" width="672" height="384" decoding="async" loading="lazy">
+            <img class="sc2-early js-only" src="assets/media/scene-state/mirage/y_rec_early.webp" alt="" width="672" height="384" decoding="async" loading="lazy">
+            <video class="sc2-v" controls muted playsinline preload="none" poster="assets/media/scene-state/mirage/y_rec_key.webp" width="672" height="384" aria-label="Recording of Player 2, 24.5 to 27.0 s"><source src="assets/media/scene-state/mirage/y_rec.mp4" type="video/mp4"><source src="assets/media/scene-state/mirage/y_rec.webm" type="video/webm"></video>
+            <span class="chip" aria-hidden="true"><span class="dot dot-rec"></span>Recording<span class="chip-t" data-clock="y">27.0 s</span></span>
+          </div>
+          <figcaption><span class="sc2-lab"><span data-t="yname">Player 2</span> <span class="mute">&middot; recording</span></span></figcaption>
+        </figure>
+        <figure class="sc2-p view" data-mode="off">
+          <div class="frame">
+            <img class="sc2-key js-only" src="assets/media/scene-state/mirage/y_off_key.webp" alt="" width="672" height="384" decoding="async" loading="lazy">
+            <img class="sc2-early js-only" src="assets/media/scene-state/mirage/y_off_early.webp" alt="" width="672" height="384" decoding="async" loading="lazy">
+            <video class="sc2-v" controls muted playsinline preload="none" poster="assets/media/scene-state/mirage/y_off_key.webp" width="672" height="384" aria-label="Player 2 with scene state off at inference, 24.5 to 27.0 s"><source src="assets/media/scene-state/mirage/y_off.mp4" type="video/mp4"><source src="assets/media/scene-state/mirage/y_off.webm" type="video/webm"></video>
+            <span class="chip" aria-hidden="true"><span class="dot dot-off"></span>Scene state off<span class="chip-t" data-clock="y">27.0 s</span></span>
+          </div>
+          <figcaption><span class="sc2-lab"><span data-t="yname">Player 2</span> <span class="mute">&middot; scene state off</span></span><span class="verdict no"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>A different place</span></figcaption>
+        </figure>
+        <svg class="sc2-corr js-only" aria-hidden="true" focusable="false"></svg>
+      </div>
+      <p class="caption"><span data-t="map">Mirage</span>, held-out round, given player positions. <span data-t="yname">Player&nbsp;2</span>&rsquo;s three views share one camera.</p>
+    </div>
+
+  </div>
+</section>
+
+<section class="section method" id="method">
+  <div class="wrap">
+    <header class="section-head">
+      <p class="eyebrow">Method</p>
+      <h2 class="headline reveal">One client per player.</h2>
+      <p class="lead reveal">Each client reads the shared world state, generates its own view, and publishes updated state once per block. Activations, KV caches and intermediate features remain local.</p>
+    </header>
+  </div>
+  <div class="wrap wrap-fig">
+    <figure class="ofig reveal" id="fig2" data-fig="fig2">
+      <div class="ofig-scroll">
+        <div class="ofig-stage" style="aspect-ratio: 1176.25 / 651.5">
+          <img class="ofig-base" src="assets/media/method/fig2.svg" width="1176" height="652" loading="lazy" decoding="async" alt="The architecture. (a) Coupled methods: one joint generator for all players, by joint attention or view concatenation; every denoising step is joint, and scaling means one longer joint sequence. (b) Distributed, WorldCast: a shared world holds the player state and the scene state; each client i, j, k reads it, generates its own view with a local generator G-theta from its action and own history, estimates its state with a state model, and publishes player state and a memory entry; over time, each block is extrapolated, corrected and synced once; a client can be added anywhere.">
+        </div>
+      </div>
+      <div class="ofig-bar js-only" aria-hidden="true"></div>
+      <figcaption class="ofig-cap"><b>Figure 2.</b> (a) Coupled designs generate all players&rsquo; views in one model. (b) Each WorldCast player runs its own client, and clients exchange only the shared world state.</figcaption>
+    </figure>
+    <figure class="ofig f3c reveal" id="fig3" data-fig="fig3">
+      <div class="f3c-card">
+        <div class="f3c-stage js-only">
+          <div class="f3c-map" role="img" aria-label="Map of the shared world on Mirage: clients i and k at their recorded positions; the memory entry k stores at a doorway, i walking with block n&rsquo;s cameras to that doorway and turning there, k&rsquo;s entry retrieved, and i&rsquo;s position and block n&rsquo;s entry published at the doorway.">
+            <canvas aria-hidden="true"></canvas>
+            <span class="f3c-chip" aria-hidden="true"><i style="--c:#1d4f86"></i>Shared world state</span>
+            <div class="f3c-pst" aria-hidden="true"></div>
+          </div>
+          <div class="f3c-view">
+            <video muted playsinline preload="none" width="672" height="384" aria-label="Client i, Player 2: generated view, 23.1 to 27.0 s of the round."></video>
+            <canvas aria-hidden="true"></canvas>
+            <span class="f3c-chip" aria-hidden="true"><i></i>Client <em>i</em><span class="f3c-sub"></span></span>
+          </div>
+        </div>
+        <div class="ofig-scroll">
+          <div class="ofig-stage" style="aspect-ratio: 1606.8 / 528.48">
+            <img class="ofig-base" src="assets/media/method/fig3.svg" width="1607" height="528" loading="lazy" decoding="async" alt="Scene state in one block. Left, the shared world state: the player state table and the scene state (memory bank with latent frames, cameras and depth). Reading, by client i before block n: extrapolation, camera projection into the player state field, 3D points, missing pixels, coverage and the retrieved memory entry. Right, client i: the causal video DiT (Pluecker ray and patch embeddings, DiT blocks, the state injector adding Conv0 of the field, block-causal self-attention over memory frames, recent context and target frames, action AdaLN, FFN) and the state model (depth head, conv and action encoders, causal transformer, motion and place heads, complementary filter), which update the memory entry and the own position, published for block n+1.">
+          </div>
+        </div>
+      </div>
+      <div class="ofig-bar js-only" aria-hidden="true"></div>
+      <figcaption class="ofig-cap"><b>Figure 3.</b> One block of a real Mirage round. Client <i>k</i> stores its view of a doorway in the memory bank. When client <i>i</i> later turns at that doorway, it retrieves <i>k</i>&rsquo;s entry to fill what it has not seen, generates the block, then publishes its position and its own entry.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section numbers" id="numbers">
+  <div class="wrap">
+    <header class="section-head">
+      <p class="eyebrow">Serving</p>
+      <h2 class="headline reveal">One GPU per client.</h2>
+    </header>
+    <div class="stats reveal">
+      <div class="stat">
+        <p class="stat-v"><span class="num">16+</span><small>FPS</small></p>
+        <p class="stat-k">per client <span class="q">2 to 16 players</span></p>
+      </div>
+      <div class="stat">
+        <p class="stat-v"><span class="num">3.5</span><small>Mb/s</small></p>
+        <p class="stat-k">received per client <span class="q">16 players</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section gallery" id="gallery">
+  <div class="wrap">
+    <header class="section-head">
+      <p class="eyebrow">Gallery</p>
+      <h2 class="headline reveal">More views.</h2>
+    </header>
+    <ul class="grid" id="grid">
+      <li><a class="tile" href="assets/media/gallery/nuke_1.mp4" data-webm="assets/media/gallery/nuke_1.webm" data-poster="assets/media/gallery/nuke_1.webp" data-title="Nuke"><img src="assets/media/gallery/nuke_1.webp" alt="Nuke, generated view" width="672" height="384" loading="lazy" decoding="async"><span class="tile-k">Nuke</span></a></li>
+      <li><a class="tile" href="assets/media/gallery/dust2_5.mp4" data-webm="assets/media/gallery/dust2_5.webm" data-poster="assets/media/gallery/dust2_5.webp" data-title="Dust2"><img src="assets/media/gallery/dust2_5.webp" alt="Dust2, generated view" width="672" height="384" loading="lazy" decoding="async"><span class="tile-k">Dust2</span></a></li>
+      <li><a class="tile" href="assets/media/gallery/mirage_1.mp4" data-webm="assets/media/gallery/mirage_1.webm" data-poster="assets/media/gallery/mirage_1.webp" data-title="Mirage"><img src="assets/media/gallery/mirage_1.webp" alt="Mirage, generated view" width="672" height="384" loading="lazy" decoding="async"><span class="tile-k">Mirage</span></a></li>
+      <li><a class="tile" href="assets/media/gallery/ancient_4.mp4" data-webm="assets/media/gallery/ancient_4.webm" data-poster="assets/media/gallery/ancient_4.webp" data-title="Ancient"><img src="assets/media/gallery/ancient_4.webp" alt="Ancient, generated view" width="672" height="384" loading="lazy" decoding="async"><span class="tile-k">Ancient</span></a></li>
+      <li><a class="tile" href="assets/media/gallery/dust2_6.mp4" data-webm="assets/media/gallery/dust2_6.webm" data-poster="assets/media/gallery/dust2_6.webp" data-title="Dust2"><img src="assets/media/gallery/dust2_6.webp" alt="Dust2, generated view" width="672" height="384" loading="lazy" decoding="async"><span class="tile-k">Dust2</span></a></li>
+      <li><a class="tile" href="assets/media/gallery/mirage_4.mp4" data-webm="assets/media/gallery/mirage_4.webm" data-poster="assets/media/gallery/mirage_4.webp" data-title="Mirage"><img src="assets/media/gallery/mirage_4.webp" alt="Mirage, generated view" width="672" height="384" loading="lazy" decoding="async"><span class="tile-k">Mirage</span></a></li>
+      <li><a class="tile" href="assets/media/gallery/ancient_5.mp4" data-webm="assets/media/gallery/ancient_5.webm" data-poster="assets/media/gallery/ancient_5.webp" data-title="Ancient"><img src="assets/media/gallery/ancient_5.webp" alt="Ancient, generated view" width="672" height="384" loading="lazy" decoding="async"><span class="tile-k">Ancient</span></a></li>
+      <li><a class="tile" href="assets/media/gallery/nuke_5.mp4" data-webm="assets/media/gallery/nuke_5.webm" data-poster="assets/media/gallery/nuke_5.webp" data-title="Nuke"><img src="assets/media/gallery/nuke_5.webp" alt="Nuke, generated view" width="672" height="384" loading="lazy" decoding="async"><span class="tile-k">Nuke</span></a></li>
+      <li><a class="tile" href="assets/media/gallery/mirage_5.mp4" data-webm="assets/media/gallery/mirage_5.webm" data-poster="assets/media/gallery/mirage_5.webp" data-title="Mirage"><img src="assets/media/gallery/mirage_5.webp" alt="Mirage, generated view" width="672" height="384" loading="lazy" decoding="async"><span class="tile-k">Mirage</span></a></li>
+      <li><a class="tile" href="assets/media/gallery/ancient_6.mp4" data-webm="assets/media/gallery/ancient_6.webm" data-poster="assets/media/gallery/ancient_6.webp" data-title="Ancient"><img src="assets/media/gallery/ancient_6.webp" alt="Ancient, generated view" width="672" height="384" loading="lazy" decoding="async"><span class="tile-k">Ancient</span></a></li>
+      <li><a class="tile" href="assets/media/gallery/nuke_6.mp4" data-webm="assets/media/gallery/nuke_6.webm" data-poster="assets/media/gallery/nuke_6.webp" data-title="Nuke"><img src="assets/media/gallery/nuke_6.webp" alt="Nuke, generated view" width="672" height="384" loading="lazy" decoding="async"><span class="tile-k">Nuke</span></a></li>
+      <li><a class="tile" href="assets/media/gallery/dust2_7.mp4" data-webm="assets/media/gallery/dust2_7.webm" data-poster="assets/media/gallery/dust2_7.webp" data-title="Dust2"><img src="assets/media/gallery/dust2_7.webp" alt="Dust2, generated view" width="672" height="384" loading="lazy" decoding="async"><span class="tile-k">Dust2</span></a></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section paper" id="paper">
+  <div class="wrap">
+    <h2 class="visually-hidden">Citation</h2>
+    <div class="bib" id="bibtex">
+      <div class="bib-head">
+        <span>BibTeX</span>
+        <button class="copy js-only" type="button" aria-live="polite">
+          <svg class="i-copy" viewBox="0 0 20 20" aria-hidden="true"><rect x="6.5" y="6.5" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M13.5 6.5V5a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 5v7A1.5 1.5 0 0 0 5 13.5h1.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          <svg class="i-check" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="copy-label">Copy</span>
+        </button>
+      </div>
+<pre><code id="bibtex-code">@article{ye2026worldcast,
+  title   = {WorldCast: Distributed Multiplayer World Models},
+  author  = {Ye, Ziyang and Huang, Junchao and Zhang, Evelyn and Xie, Zhihao and Zhang, Ruicheng and Han, Boyao and Ban, Litao and Wang, Ziye and Hu, Xinting and Shi, Shaoshuai and Tian, Zhuotao and Jiang, Li},
+  journal = {arXiv preprint},
+  year    = {2026}
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap foot">
+    <p class="foot-brand">WorldCast</p>
+    <p class="foot-sub">Distributed Multiplayer World Models</p>
+    <a class="foot-top" href="#top">Back to top</a>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-labelledby="lb-title" hidden>
+  <div class="lb-backdrop" data-close></div>
+  <div class="lb-panel">
+    <div class="lb-head">
+      <div class="lb-titles"><p class="lb-title" id="lb-title"></p></div>
+      <button class="lb-btn lb-close" type="button" data-close aria-label="Close"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="lb-stage"></div>
+    <div class="lb-nav">
+      <button class="lb-btn lb-prev" type="button" aria-label="Previous"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5L7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="lb-btn lb-next" type="button" aria-label="Next"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5L13 10l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/media/views/track.js" defer></script>
+<script src="assets/media/player-state/track.js" defer></script>
+<script src="assets/media/scene-state/mirage/case.js" defer></script>
+<script src="assets/media/scene-state/dust2/case.js" defer></script>
+<script src="assets/media/method/figdata.js" defer></script>
+<script src="assets/media/method/fig3/data.js" defer></script>
+<script src="assets/js/fig3case.js?v=1002" defer></script>
+<script src="assets/media/wall/layout.js?v=1002" defer></script>
+<script src="assets/js/wall.js?v=1002" defer></script>
+<script src="assets/js/main.js?v=1012" defer></script>
+</body>
+</html>

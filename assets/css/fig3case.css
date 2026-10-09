@@ -1,0 +1,77 @@
+/* ---------- Figure 3 with one real rollout (assets/js/fig3case.js) ----------
+   One white card: the shared world (map) and client i's generated view above the paper's figure. The stage keeps its size
+   from CSS alone (no layout shift); without JavaScript only the figure shows. */
+#fig3.f3c { --f3c-w: min(calc(100vw - 2 * var(--gutter)), var(--wrap-wide)); --f3c-pad: 12px;
+  --f3c-fig: calc((var(--f3c-w) - 2 * var(--f3c-pad)) * 0.3289);
+  --f3c-h: clamp(190px, min(calc(100vh - var(--nav-h) - 94px - var(--f3c-fig)), calc((var(--f3c-w) - 36px) * 0.3)), 420px); }
+@supports (height: 100svh) {
+  #fig3.f3c { --f3c-h: clamp(190px, min(calc(100svh - var(--nav-h) - 94px - var(--f3c-fig)), calc((var(--f3c-w) - 36px) * 0.3)), 420px); }
+}
+.f3c-card { position: relative; border-radius: 18px; background: #fff; overflow: hidden; isolation: isolate;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .06), 0 30px 80px -30px rgba(0, 0, 0, .9); }
+.f3c-card > .ofig-scroll { border-radius: 0; background: transparent; box-shadow: none; }
+.f3c-stage { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px;
+  height: var(--f3c-h); margin: var(--f3c-pad) var(--f3c-pad) 6px; }
+.f3c-map, .f3c-view { position: relative; min-width: 0; height: 100%; border-radius: 12px; overflow: hidden; }
+.f3c-map { background: #e3e7ee; box-shadow: inset 0 0 0 1px rgba(29, 79, 134, .06); }
+.f3c-view { aspect-ratio: 672 / 384; background: #0b0b0d; }
+.f3c-map > canvas, .f3c-view > canvas, .f3c-view > video { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; display: block; }
+.f3c-view > video { object-fit: cover; }
+.f3c-chip { position: absolute; left: 10px; top: 10px; z-index: 2; display: inline-flex; align-items: center; gap: 6px; height: 24px;
+  padding: 0 10px 0 8px; border-radius: 999px; font: 600 12px/1 var(--font); letter-spacing: 0; white-space: nowrap; pointer-events: none;
+  background: rgba(22, 22, 23, .62); color: #f5f5f7; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.f3c-map .f3c-chip { background: rgba(255, 255, 255, .82); color: #1d1d1f; box-shadow: 0 0 0 .5px rgba(0, 0, 0, .08); }
+.f3c-chip i { width: 7px; height: 7px; border-radius: 50%; flex: none; background: var(--c, #ff7426); }
+.f3c-chip em, .f3c-pst em { font: italic 600 15px/1 "Times New Roman", Times, serif; }
+.f3c-chip .f3c-sub { font-weight: 500; color: #c7c7cc; margin-left: 2px; }
+.f3c-chip .f3c-sub:empty { display: none; }
+.f3c-chip .f3c-sub em { font-size: 14px; }
+/* the shared player state: the case's recorded values, live (the one table of values; the demo figure's table keeps its
+   form without the paper's example values) */
+.f3c-pst { position: absolute; left: 10px; bottom: 10px; z-index: 2; display: grid; grid-template-columns: auto auto auto auto; gap: 4px 14px;
+  align-items: center; padding: 9px 13px 10px; border-radius: 12px; font: 500 11.5px/1.25 var(--font); color: #1d1d1f;
+  background: rgba(255, 255, 255, .9); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .08), 0 10px 28px -12px rgba(15, 30, 60, .35);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); opacity: 0; pointer-events: none; will-change: opacity; }
+.f3c-pst > span { white-space: nowrap; }
+.f3c-pst .h { font-size: 10px; font-weight: 600; color: #86868b; }
+.f3c-pst em { font-size: 14px; text-align: center; }
+.f3c-pst svg { width: 16px; height: 16px; display: block; margin: 0 auto; overflow: visible; }
+.f3c-pst .ctl { min-width: 8em; }
+.f3c-pst .wp { min-width: 4.9em; }   /* (fixed columns: a longer control or weapon never moves the others) */
+/* i's position (its client and position cells), lit as the one for block n+1 arrives (Publish): behind the cells, out of
+   the grid's flow (placed by fig3case.js) */
+.f3c-pst-hi { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: -1; border-radius: 7px;
+  background: rgba(255, 116, 38, .15); opacity: 0; pointer-events: none; will-change: opacity; }
+.f3c-links { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; overflow: visible; pointer-events: none; z-index: 5; }
+.f3c-fly { position: absolute; inset: 0; pointer-events: none; z-index: 6; overflow: hidden; border-radius: 18px; }
+.f3c-fl { position: absolute; left: 0; top: 0; border-radius: 3px; opacity: 0; will-change: transform, opacity; transform-origin: 0 0;
+  box-shadow: 0 0 0 1.5px var(--c, #0f9bff), 0 8px 20px rgba(0, 0, 0, .28); }
+.f3c-fl > canvas, .om > canvas { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; display: block; }
+.om-slot { border-radius: 1.5px; }
+@media (max-width: 734px) {
+  #fig3.f3c { --f3c-pad: 10px; }
+  .f3c-card { border-radius: 14px; }
+  .f3c-fly { border-radius: 14px; }
+  .f3c-stage { display: flex; flex-direction: column; height: auto; gap: 8px; }
+  .f3c-view { order: -1; width: 100%; height: auto; border-radius: 10px; }
+  .f3c-map { width: 100%; height: auto; aspect-ratio: 2.35; border-radius: 10px; }
+  /* the live player state table, compact, in the lower left corner (the map's name gives way to it; anchored at its left
+     edge, so a longer control never moves it) */
+  .f3c-pst { left: 8px; bottom: 8px; gap: 2px 9px; padding: 6px 9px 7px; border-radius: 10px; font-size: 10px; }
+  .f3c-pst .h { font-size: 9px; }
+  .f3c-pst em { font-size: 12.5px; }
+  .f3c-pst svg { width: 13px; height: 13px; }
+  .f3c-pst-hi { border-radius: 6px; }
+  /* in Publish the table keeps the column that changes, the position (clear of block n's entry on the map) */
+  .f3c-pst.is-pub { grid-template-columns: auto auto; }
+  .f3c-pst.is-pub > .h:nth-child(n+3), .f3c-pst.is-pub > .ctl, .f3c-pst.is-pub > .wp { display: none; }
+  .f3c-chip { left: 8px; top: 8px; height: 22px; font-size: 11px; }
+  /* the map's name sits in its lower left corner on phones, clear of the players' paths along the top */
+  .f3c-map .f3c-chip { top: auto; bottom: 8px; }
+  .f3c-card > .ofig-scroll { border-radius: 0; }
+}
+.f3c.is-failed .f3c-stage { display: none; }
+/* the figure's Missing pixels slot: the read's cells at the screen's own pixels, never blended into their neighbours */
+.om.f3c-miss > canvas { image-rendering: -webkit-optimize-contrast; image-rendering: pixelated; }
+/* the step bar's clients in the paper's notation (Store k, Store i) */
+#fig3 .ofig-step span em { font: italic 600 13px/1 "Times New Roman", Times, serif; }
